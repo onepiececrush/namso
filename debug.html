@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>调试 Tauri 命令</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px; margin: 5px; }
+        #output { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Tauri 命令调试</h1>
+    
+    <button onclick="testGetNetworks()">测试获取网络</button>
+    <button onclick="testGenerateCards()">测试生成卡号</button>
+    <button onclick="testValidateCard()">测试验证卡号</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = isError ? 'error' : 'success';
+            div.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            output.appendChild(div);
+            console.log(message);
+        }
+        
+        async function testGetNetworks() {
+            try {
+                log('开始测试获取网络...');
+                const result = await window.__TAURI__.core.invoke('get_networks');
+                log('获取网络成功: ' + JSON.stringify(result));
+            } catch (error) {
+                log('获取网络失败: ' + error.message, true);
+            }
+        }
+        
+        async function testGenerateCards() {
+            try {
+                log('开始测试生成卡号...');
+                const result = await window.__TAURI__.core.invoke('generate_cards', {
+                    network: 'visa',
+                    quantity: 2,
+                    exp_month: null,
+                    exp_year: null,
+                    include_cvv: true,
+                    include_balance: false,
+                    currency: null,
+                    bin_code: null,
+                });
+                log('生成卡号成功: ' + JSON.stringify(result));
+            } catch (error) {
+                log('生成卡号失败: ' + error.message, true);
+            }
+        }
+        
+        async function testValidateCard() {
+            try {
+                log('开始测试验证卡号...');
+                const result = await window.__TAURI__.core.invoke('validate_card', {
+                    card_number: '4111111111111111'
+                });
+                log('验证卡号成功: ' + JSON.stringify(result));
+            } catch (error) {
+                log('验证卡号失败: ' + error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>

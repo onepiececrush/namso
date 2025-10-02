@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试 Tauri 命令</title>
+    <script type="module">
+        import { invoke } from 'http://localhost:1420/@tauri-apps/api/core';
+        
+        window.testCommands = async function() {
+            console.log('开始测试 Tauri 命令...');
+            
+            try {
+                // 测试获取网络列表
+                console.log('测试 get_networks...');
+                const networks = await invoke('get_networks');
+                console.log('Networks:', networks);
+                
+                // 测试生成卡号
+                console.log('测试 generate_cards...');
+                const cards = await invoke('generate_cards', {
+                    network: 'visa',
+                    quantity: 2,
+                    exp_month: null,
+                    exp_year: null,
+                    include_cvv: true,
+                    include_balance: false,
+                    currency: null,
+                    bin_code: null,
+                });
+                console.log('Generated cards:', cards);
+                
+                // 测试导出
+                console.log('测试 export_cards...');
+                const exported = await invoke('export_cards', {
+                    cards: cards,
+                    format: 'PIPE'
+                });
+                console.log('Exported:', exported);
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>测试成功！</h3>
+                    <p>网络数量: ${networks.length}</p>
+                    <p>生成卡号数量: ${cards.length}</p>
+                    <p>导出结果: ${exported.split('\n').length} 行</p>
+                `;
+                
+            } catch (error) {
+                console.error('测试失败:', error);
+                document.getElementById('result').innerHTML = `
+                    <h3>测试失败！</h3>
+                    <p>错误: ${error.message || error}</p>
+                `;
+            }
+        };
+    </script>
+</head>
+<body>
+    <h1>Tauri 命令测试</h1>
+    <button onclick="testCommands()">开始测试</button>
+    <div id="result"></div>
+</body>
+</html>
